@@ -30,6 +30,7 @@ type Operation struct {
 	history *opHistory
 	*opSearch
 	*opCompleter
+	*opHelper
 	*opPassword
 	*opVim
 }
@@ -78,10 +79,12 @@ func NewOperation(t *Terminal, cfg *Config) *Operation {
 	op.SetConfig(cfg)
 	op.opVim = newVimMode(op)
 	op.opCompleter = newOpCompleter(op.buf.w, op, width)
+	op.opHelper = newOpHelper(op.buf.w, op, width)
 	op.opPassword = newOpPassword(op)
 	op.cfg.FuncOnWidthChanged(func() {
 		newWidth := cfg.FuncGetWidth()
 		op.opCompleter.OnWidthChange(newWidth)
+		op.opHelper.OnWidthChange(newWidth)
 		op.opSearch.OnWidthChange(newWidth)
 		op.buf.OnWidthChange(newWidth)
 	})
@@ -180,6 +183,12 @@ func (o *Operation) ioloop() {
 			} else {
 				o.t.Bell()
 				break
+			}
+		case CharQuestion:
+			if o.GetConfig().ContextHelp != nil {
+				if !o.OnHelp() {
+					o.t.Bell()
+				}
 			}
 
 		case CharBckSearch:
@@ -478,6 +487,10 @@ func (op *Operation) SetConfig(cfg *Config) (*Config, error) {
 
 	if op.cfg.AutoComplete != nil {
 		op.opCompleter = newOpCompleter(op.buf.w, op, width)
+	}
+
+	if op.cfg.ContextHelp != nil {
+		op.opHelper = newOpHelper(op.buf.w, op, width)
 	}
 
 	op.opSearch = cfg.opSearch

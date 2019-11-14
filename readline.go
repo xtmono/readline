@@ -40,6 +40,9 @@ type Config struct {
 	// AutoCompleter will called once user press TAB
 	AutoComplete AutoCompleter
 
+	// ContextHelper will called once user press '?' key
+	ContextHelp ContextHelper
+
 	// Any key press will pass to Listener
 	// NOTE: Listener will be triggered by (nil, 0, 0) immediately
 	Listener Listener
