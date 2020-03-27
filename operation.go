@@ -237,7 +237,7 @@ func (o *Operation) ioloop() {
 			}
 		case CharCtrlZ:
 			o.buf.Clean()
-			o.t.SleepToResume()
+			// o.t.SleepToResume()
 			o.Refresh()
 		case CharCtrlL:
 			ClearScreen(o.w)
